@@ -1,0 +1,72 @@
+.site-background-video {
+  animation: none !important;
+  opacity: 0 !important;
+  transition: opacity .5s ease !important;
+  transform: scale(1) !important;
+  transform-origin: center;
+  will-change: auto;
+  filter: blur(0) !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  transition: opacity .5s ease, filter .35s ease, transform .35s ease !important;
+}
+
+.site-background-video.is-visible {
+  opacity: 1 !important;
+}
+
+.site-background-video.is-blurred {
+  filter: blur(7px) !important;
+  transform: scale(1.04) !important;
+}
+
+.app.light .site-background-video {
+  filter: none !important;
+  mix-blend-mode: normal;
+}
+
+.app.light .site-background-video.is-blurred {
+  filter: blur(7px) !important;
+}
+
+.app.light .nav,
+.app.light .nav.is-scrolled {
+  background: rgba(255, 255, 255, .94) !important;
+}
+
+@media (max-width: 700px) {
+  .site-background-video {
+    object-fit: contain !important;
+  }
+
+  .app.light {
+    --bg: #fff !important;
+    --panel: #fff !important;
+    --line: #d9dce0 !important;
+  }
+
+  .app.light .nav,
+  .app.light .nav.is-scrolled {
+    background: rgba(255, 255, 255, .94) !important;
+  }
+
+  .app.light .section#store-grid {
+    background: rgba(255, 255, 255, .7) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .site-background-video {
+    object-fit: contain !important;
+  }
+
+}
+
+body:has(.app.light),
+#root:has(.app.light) {
+  background: #fff !important;
+}
+
+.app.light .product-image {
+  background: var(--panel) !important;
+}

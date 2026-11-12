@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="900" viewBox="0 0 800 900">
+  <rect width="800" height="900" fill="#0c0c0c"/>
+  <rect x="160" y="120" width="480" height="650" rx="30" fill="#131313" stroke="#f3f3f3" stroke-width="5"/>
+  <path d="M250 180 L360 90 H440 L550 180 L610 340 L560 760 H240 L190 340 Z" fill="#f3f3f3" opacity="0.16"/>
+  <text x="400" y="420" text-anchor="middle" fill="#ffffff" font-size="70" font-family="Arial, sans-serif" font-weight="700">LAST</text>
+  <text x="400" y="500" text-anchor="middle" fill="#ffffff" font-size="70" font-family="Arial, sans-serif" font-weight="700">LEAGUE</text>
+  <text x="400" y="620" text-anchor="middle" fill="#ff3b3b" font-size="30" font-family="Arial, sans-serif" font-weight="700">BROADCAST DROP</text>
+</svg>
