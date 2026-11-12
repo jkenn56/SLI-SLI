@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 import './background-tuning.css';
@@ -57,7 +57,7 @@ function Intro({ onDone }) {
       {/* tv-noise glitch behind everything */}
       <canvas ref={canvas} style={{ position:'absolute', inset:0, width:'100%', height:'100%', zIndex:1 }} />
 
-      <button onClick={onDone} style={{ position:'absolute', right:25, bottom:25, zIndex:10, color:'#aaa', border:'1px solid #444', background:'transparent', padding:'9px 14px', fontSize:10, letterSpacing:'.12em', cursor:'pointer' }}>SKIP â†’</button>
+      <button onClick={onDone} style={{ position:'absolute', right:25, bottom:25, zIndex:10, color:'#aaa', border:'1px solid #444', background:'transparent', padding:'9px 14px', fontSize:10, letterSpacing:'.12em', cursor:'pointer' }}>SKIP</button>
     </div>
   );
 }
@@ -92,12 +92,12 @@ function Cart({ items, total, onClose, onCheckout }) {
       <aside className="drawer">
         <div className="drawer-head">
           <h2>YOUR CART</h2>
-          <button onClick={onClose}>âœ•</button>
+          <button type="button" aria-label="Close cart" onClick={onClose}>X</button>
         </div>
         {items.length
           ? items.map(it => (
             <div className="cart-row" key={it.id}>
-              <span>{it.name}<small>{fmt(it.price)} Ã— {it.qty}</small></span>
+              <span>{it.name}<small>{fmt(it.price)} x {it.qty}</small></span>
             </div>
           ))
           : <p className="empty">Your cart is empty.</p>}
@@ -110,7 +110,6 @@ function Cart({ items, total, onClose, onCheckout }) {
   );
 }
 
-/* â”€â”€â”€ CHECKOUT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function Checkout({ items, total, onClose, onNotice }) {
   const [email, setEmail] = useState('');
   const [busy, setBusy] = useState(false);
@@ -137,7 +136,7 @@ function Checkout({ items, total, onClose, onNotice }) {
   return (
     <div className="checkout">
       <div className="checkout-top">
-        <button onClick={onClose}>âœ•</button>
+        <button onClick={onClose}>X</button>
         <span>SLI-BENSHII CHECKOUT</span>
       </div>
       <form className="checkout-body" onSubmit={pay}>
@@ -149,7 +148,7 @@ function Checkout({ items, total, onClose, onNotice }) {
         <h3>Contact</h3>
         <input type="email" placeholder="Email for receipt" value={email} onChange={e => setEmail(e.target.value)} required />
         <div className="payment-option">
-          <p style={{ margin: 0, fontSize: 11, color: '#888' }}>Place your order â€” we'll confirm your details and shipping by email.</p>
+          <p style={{ margin: 0, fontSize: 11, color: '#888' }}>Place your order - we'll confirm your details and shipping by email.</p>
         </div>
         <button className="pay" disabled={busy}>{busy ? 'PLACING ORDER...' : 'PLACE ORDER'}</button>
       </form>
@@ -201,7 +200,7 @@ function LeaguePage({ onAdd, offline }) {
 
   return (
     <main className="league-page">
-      {/* opening cinematic video â€” fullscreen, plays once, then hides */}
+      {/* opening cinematic video - fullscreen, plays once, then hides */}
       <LeagueOpeningVideo />
 
       <section className="section">
@@ -213,7 +212,7 @@ function LeaguePage({ onAdd, offline }) {
         {items.length === 0 && (
           <div className="empty-state">
             <strong>SIGNAL LOST</strong>
-            <span>No broadcasts have been published yet.<br />Check back soon â€” the Last League Final is coming.</span>
+            <span>No broadcasts have been published yet.<br />Check back soon - the Last League Final is coming.</span>
           </div>
         )}
 
@@ -275,15 +274,15 @@ function CommunityPage() {
         <div className="community-layout">
           <div className="community-links">
             {[
-              { icon: 'â—‰', label: 'WHATSAPP', sub: 'Join the channel', href: 'https://whatsapp.com/channel/0029Vb8ISZRIyPtMl50rfi1i' },
-              { icon: 'â—Ž', label: 'INSTAGRAM', sub: '@sli_benshii', href: 'https://www.instagram.com/sli_benshii' },
-              { icon: 'ð•', label: 'X / TWITTER', sub: '@slibenshiibtr', href: 'https://x.com/slibenshiibtr' },
-              { icon: 'âœ‰', label: 'EMAIL', sub: 'slibenshii.btr@gmail.com', href: 'mailto:slibenshii.btr@gmail.com' },
+              { icon: 'WA', label: 'WHATSAPP', sub: 'Join the channel', href: 'https://whatsapp.com/channel/0029Vb8ISZRIyPtMl50rfi1i' },
+              { icon: 'IG', label: 'INSTAGRAM', sub: '@sli_benshii', href: 'https://www.instagram.com/sli_benshii' },
+              { icon: 'X', label: 'X / TWITTER', sub: '@slibenshiibtr', href: 'https://x.com/slibenshiibtr' },
+              { icon: '@', label: 'EMAIL', sub: 'slibenshii.btr@gmail.com', href: 'mailto:slibenshii.btr@gmail.com' },
             ].map(l => (
               <a key={l.label} className="community-link" href={l.href} target="_blank" rel="noreferrer">
                 <div className="community-icon">{l.icon}</div>
                 <div><strong>{l.label}</strong><small>{l.sub}</small></div>
-                <b>â†’</b>
+                <b>&gt;</b>
               </a>
             ))}
           </div>
@@ -414,7 +413,6 @@ export default function App() {
   const [dark, setDark] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [navBlurOff, setNavBlurOff] = useState(true);
   const [settings, setSettings] = useState({
     siteOffline: false,
     storeOffline: false,
@@ -425,12 +423,9 @@ export default function App() {
   const navRef = useRef(null);
 
   useEffect(() => {
-    let lastY = window.scrollY;
     const onScroll = () => {
       const y = window.scrollY;
       setScrolled(y > 40);
-      setNavBlurOff(y <= lastY);
-      lastY = y;
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -505,7 +500,7 @@ export default function App() {
       {intro && <Intro onDone={() => setIntro(false)} />}
 
       {/* NAV */}
-      <header ref={navRef} className={`nav${scrolled ? ' is-scrolled' : ''}${navBlurOff ? ' is-blur-off' : ''}`}>
+      <header ref={navRef} className={`nav${scrolled ? ' is-scrolled' : ''}`}>
         <button className="brand" onClick={() => navigate('store')} aria-label="SLI-BENSHII home">
           <img src="/logo.png" alt="SLI-BENSHII" className="brand-logo" />
         </button>
@@ -550,7 +545,7 @@ export default function App() {
                 </div>
                 <div className="empty-state">
                   <strong>STORE IS OFFLINE</strong>
-                  <span>The SLI-Store is temporarily paused.<br />New drops are coming â€” check back soon.</span>
+                  <span>The SLI-Store is temporarily paused.<br />New drops are coming - check back soon.</span>
                 </div>
               </>
             ) : (
@@ -579,7 +574,7 @@ export default function App() {
       {/* COMMUNITY */}
       {tab === 'community' && !settings.siteOffline && <CommunityPage />}
 
-      {/* OFFLINE â€” WHOLE SITE */}
+      {/* OFFLINE - WHOLE SITE */}
       {settings.siteOffline && (
         <main className="offline-screen">
           <div className="offline-card">

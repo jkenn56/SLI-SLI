@@ -164,7 +164,7 @@ function generateToken(user) {
 
 function requireAdmin(req, res, next) {
   if (!adminConfigured) {
-    return res.status(503).json({ message: 'Admin access is not configured on this deployment.' });
+    return res.status(503).json({ message: 'Admin login is disabled. Add ADMIN_EMAIL, ADMIN_PASSWORD, and JWT_SECRET in Vercel Project Settings > Environment Variables, then redeploy.' });
   }
   const authHeader = req.headers.authorization || '';
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
@@ -252,7 +252,7 @@ app.post('/api/notifications/subscribe', async (req, res) => {
 
 app.post('/api/auth/login', (req, res) => {
   if (!adminConfigured) {
-    return res.status(503).json({ message: 'Admin access is not configured on this deployment.' });
+    return res.status(503).json({ message: 'Admin login is disabled. Add ADMIN_EMAIL, ADMIN_PASSWORD, and JWT_SECRET in Vercel Project Settings > Environment Variables, then redeploy.' });
   }
   const { email = '', password = '' } = req.body || {};
 
