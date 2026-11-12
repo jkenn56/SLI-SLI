@@ -20,10 +20,8 @@ const FRONTEND_URL = (process.env.FRONTEND_URL || (process.env.VERCEL ? '/' : 'h
 const JWT_SECRET = process.env.JWT_SECRET;
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-if (!JWT_SECRET || !ADMIN_EMAIL || !ADMIN_PASSWORD) {
-  throw new Error('ADMIN_EMAIL, ADMIN_PASSWORD, and JWT_SECRET must be configured.');
-}
-const ADMIN_PASSWORD_HASH = bcrypt.hashSync(ADMIN_PASSWORD, 10);
+const adminConfigured = Boolean(JWT_SECRET && ADMIN_EMAIL && ADMIN_PASSWORD);
+const ADMIN_PASSWORD_HASH = adminConfigured ? bcrypt.hashSync(ADMIN_PASSWORD, 10) : null;
 
 fs.mkdirSync(path.join(uploadDir, 'products'), { recursive: true });
 fs.mkdirSync(path.join(uploadDir, 'league'), { recursive: true });
@@ -56,7 +54,7 @@ readData();
 
 function safeUnlink(relUrl) {
   try {
-    const filePath = path.join(__dirname, String(relUrl || '').replace(/^\//, ''));
+    const filePath = path.join(runtimeDir, String(relUrl || '').replace(/^\//, ''));
     if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
   } catch (error) {}
 }
@@ -165,6 +163,9 @@ function generateToken(user) {
 }
 
 function requireAdmin(req, res, next) {
+  if (!adminConfigured) {
+    return res.status(503).json({ message: 'Admin access is not configured on this deployment.' });
+  }
   const authHeader = req.headers.authorization || '';
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
 
@@ -250,6 +251,9 @@ app.post('/api/notifications/subscribe', async (req, res) => {
 });
 
 app.post('/api/auth/login', (req, res) => {
+  if (!adminConfigured) {
+    return res.status(503).json({ message: 'Admin access is not configured on this deployment.' });
+  }
   const { email = '', password = '' } = req.body || {};
 
   if (!email || !password) {
