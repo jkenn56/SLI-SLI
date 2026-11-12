@@ -1,3 +1,4 @@
 *.mp4 filter=lfs diff=lfs merge=lfs -text
+public/last-league-final.mp4 -filter -diff -merge -text
 public/sli-navy-wide.mp4 -filter -diff -merge -text
 public/sli-white-wide.mp4 -filter -diff -merge -text
