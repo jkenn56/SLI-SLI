@@ -1,0 +1,184 @@
+html,
+body,
+#root {
+  width: 100%;
+  min-width: 0;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+.league-opening-video {
+  display: block;
+  width: 100%;
+  max-height: 75vh;
+  margin: 0 0 32px;
+  background: #000;
+  object-fit: contain;
+}
+
+.site-footer {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  padding: 42px 20px 34px;
+  border-top: 1px solid var(--line, #2d2d2a);
+  background: var(--bg, #080808);
+  color: var(--muted, #92928d);
+  text-align: center;
+}
+
+.footer-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.footer-nav button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 9px;
+  letter-spacing: .14em;
+  padding: 0;
+}
+
+.footer-nav button.active {
+  color: var(--accent, #f2f0eb);
+}
+
+.site-footer strong {
+  font-size: 10px;
+  letter-spacing: .2em;
+}
+
+.footer-socials {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 22px;
+}
+
+.footer-socials a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: inherit;
+  font-size: 9px;
+  letter-spacing: .08em;
+  text-decoration: none;
+}
+
+.footer-socials a:hover {
+  color: var(--accent, #f2f0eb);
+}
+
+.footer-socials svg {
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 700px) {
+  .nav {
+    position: sticky;
+    flex-wrap: wrap;
+    gap: 12px 8px;
+    padding: 14px 16px 12px;
+  }
+
+  .nav > .brand {
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+  }
+
+  .nav > nav {
+    order: 3;
+    flex: 1 0 100%;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .nav > nav button {
+    min-width: 0;
+    padding: 4px 0;
+    font-size: 9px;
+    letter-spacing: .06em;
+    white-space: nowrap;
+  }
+
+  .nav-actions {
+    flex: 0 0 auto;
+    gap: 8px;
+  }
+
+  .hero {
+    min-height: min(78vh, 680px);
+    padding: 64px 16px;
+  }
+
+  .hero h1 {
+    font-size: clamp(38px, 15vw, 64px);
+    overflow-wrap: anywhere;
+  }
+
+  .hero .solid,
+  .solid {
+    max-width: 100%;
+    padding-inline: 18px;
+  }
+
+  .community,
+  .league,
+  .store {
+    padding-inline: 16px;
+  }
+
+  .community-layout,
+  .availability-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .community-link {
+    padding-inline: 14px;
+  }
+
+  .admin-modal,
+  .settings-modal,
+  .service-notice-panel {
+    width: calc(100% - 24px);
+    max-width: none;
+    max-height: calc(100vh - 24px);
+    padding: 22px 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .nav > nav button {
+    font-size: 8px;
+    letter-spacing: .03em;
+  }
+
+  .nav-actions .account,
+  .nav-actions .cart-button {
+    font-size: 9px;
+  }
+
+  .community-link strong,
+  .community-link small {
+    overflow-wrap: anywhere;
+  }
+
+  .footer-socials {
+    gap: 14px;
+  }
+
+  .footer-socials a {
+    font-size: 8px;
+  }
+}
