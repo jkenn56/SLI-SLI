@@ -12,4 +12,6 @@
 **/analytics.json
 **/settings.json
 **/reopening-subscribers.json
-backend/uploads/league/
+/uploads/
+/public/assets/
+/public/index.html

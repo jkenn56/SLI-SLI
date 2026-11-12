@@ -3,8 +3,8 @@ import { createRoot } from 'react-dom/client';
 import './styles.css';
 import './background-tuning.css';
 
-const API = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/$/, '');
-const API_ORIGIN = API.replace(/\/api$/, '');
+const API = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
+const API_ORIGIN = /^https?:\/\//i.test(API) ? API.replace(/\/api$/, '') : '';
 const fmt = (n) => `RWF ${Number(n || 0).toLocaleString()}`;
 
 /* â”€â”€â”€ INTRO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */

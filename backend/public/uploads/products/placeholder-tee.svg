@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="900" viewBox="0 0 800 900">
-  <rect width="800" height="900" fill="#0a0a0a"/>
-  <rect x="120" y="90" width="560" height="720" rx="28" fill="#111111" stroke="#f4f4f4" stroke-width="6"/>
-  <rect x="260" y="160" width="280" height="530" rx="18" fill="#171717"/>
-  <path d="M280 250 L520 250 L550 610 L250 610 Z" fill="#f2f2f2" opacity="0.12"/>
-  <text x="400" y="420" text-anchor="middle" fill="#ffffff" font-size="82" font-family="Arial, sans-serif" font-weight="700">NO</text>
-  <text x="400" y="505" text-anchor="middle" fill="#ffffff" font-size="82" font-family="Arial, sans-serif" font-weight="700">SIGNAL</text>
-  <text x="400" y="640" text-anchor="middle" fill="#ff3333" font-size="36" font-family="Arial, sans-serif" font-weight="700">SLI-BENSHII</text>
-</svg>
