@@ -82,4 +82,4 @@ export default {
     }
   ],
   "league": []
-};\n
+};
