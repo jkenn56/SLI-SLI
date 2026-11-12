@@ -1062,7 +1062,6 @@ body,
   height: 100dvh;
   object-fit: cover;
   object-position: center;
-  opacity: .3;
   pointer-events: none;
 }
 
@@ -1071,7 +1070,7 @@ body,
 }
 
 .app.light .site-background-video {
-  opacity: .24;
+  mix-blend-mode: multiply;
 }
 
 .app.dark .hero-shell,

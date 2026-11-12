@@ -413,6 +413,7 @@ export default function App() {
   const [dark, setDark] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [bgVisible, setBgVisible] = useState(false);
   const [settings, setSettings] = useState({
     siteOffline: false,
     storeOffline: false,
@@ -424,6 +425,13 @@ export default function App() {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => setBgVisible(window.scrollY > 50);
+    onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
@@ -482,7 +490,7 @@ export default function App() {
     <div className={`app ${dark ? 'dark' : 'light'}`}>
       {!settings.siteOffline && (
         <video
-          className="site-background-video"
+          className={`site-background-video${bgVisible ? ' is-visible' : ''}`}
           key={dark ? 'dark-background' : 'light-background'}
           src={dark ? '/sli-navy-wide.mp4' : '/sli-white-wide.mp4'}
           autoPlay

@@ -1,11 +1,27 @@
 .site-background-video {
   animation: none !important;
-  opacity: .42 !important;
-  transform: scale(1.35) !important;
+  opacity: 0 !important;
+  transition: opacity .5s ease !important;
+  transform: none !important;
   transform-origin: center;
   will-change: auto;
+  filter: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
 }
 
-.app.light .site-background-video {
-  opacity: .24 !important;
+.site-background-video.is-visible {
+  opacity: 1 !important;
+}
+
+@media (max-width: 700px) {
+  .site-background-video {
+    object-fit: contain !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .site-background-video {
+    object-fit: contain !important;
+  }
 }
