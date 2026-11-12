@@ -1,0 +1,11 @@
+.site-background-video {
+  animation: none !important;
+  opacity: .42 !important;
+  transform: scale(1.35) !important;
+  transform-origin: center;
+  will-change: auto;
+}
+
+.app.light .site-background-video {
+  opacity: .24 !important;
+}

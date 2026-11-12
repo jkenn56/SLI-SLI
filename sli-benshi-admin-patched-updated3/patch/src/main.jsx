@@ -1,6 +1,7 @@
 ﻿import { useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
+import './background-tuning.css';
 
 const API = 'http://localhost:5000/api';
 const fmt = (n) => `RWF ${Number(n || 0).toLocaleString()}`;
@@ -479,10 +480,11 @@ export default function App() {
 
   return (
     <div className={`app ${dark ? 'dark' : 'light'}`}>
-      {dark && !settings.siteOffline && (
+      {!settings.siteOffline && (
         <video
           className="site-background-video"
-          src="/sli-navy-wide.mp4"
+          key={dark ? 'dark-background' : 'light-background'}
+          src={dark ? '/sli-navy-wide.mp4' : '/sli-white-wide.mp4'}
           autoPlay
           muted
           loop
@@ -531,29 +533,7 @@ export default function App() {
       {/* STORE */}
       {tab === 'store' && !settings.siteOffline && (
         <main>
-          <div className="hero-shell" aria-hidden="true">
-            <div className="hero-backdrop">
-              <svg className="hero-filter-defs" aria-hidden="true" focusable="false">
-                <defs>
-                  <filter id="sli-edit-light-colors" colorInterpolationFilters="sRGB">
-                    <feColorMatrix
-                      type="matrix"
-                      values="1 -.5 -.5 0 0  0 0 0 0 0  0 0 0 0 0  1 1 1 0 0"
-                    />
-                  </filter>
-                </defs>
-              </svg>
-              <video
-                className="hero-video"
-                src="/sli_smooth_lowquality.mp4"
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-              />
-            </div>
-          </div>
+          <div className="hero-shell" aria-hidden="true" />
           <section className="section" id="store-grid">
             {settings.storeOffline ? (
               <>

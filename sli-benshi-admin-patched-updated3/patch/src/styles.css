@@ -78,8 +78,6 @@
 .footer-nav button:hover,.footer-nav button.active,.footer-nav a:hover{color:inherit}
 /* The coded SLI-BENSHII mark stays under the nav and shrinks with the hero. */
 .hero.is-pinned{min-height:0;height:var(--hero-compact-h,72px);padding:0;transition:height .35s cubic-bezier(.22,1,.36,1),min-height .35s cubic-bezier(.22,1,.36,1)}
-.hero.is-pinned .hero-video{opacity:.22;transition:opacity .35s ease}
-.hero-video{transition:opacity .35s ease}
 /* keep the first real section clear of the pinned strip so nothing is hidden */
 .hero.is-pinned ~ .section{scroll-margin-top:var(--nav-h,64px)}
 /* phone safe-area: nav grows by the inset, and --nav-h tracks the real height */
@@ -89,10 +87,9 @@
   .nav.is-scrolled{padding-top:calc(7px + env(safe-area-inset-top,0px))}
 }
 @media(min-width:701px){.nav.is-scrolled{padding-top:calc(7px + env(safe-area-inset-top,0px))}}
-@media(prefers-reduced-motion:reduce){.hero.is-pinned,.hero-video{transition:none}}
+@media(prefers-reduced-motion:reduce){.hero.is-pinned{transition:none}}
 @media(max-width:700px){
   .hero.is-pinned{background:color-mix(in srgb,var(--bg) 8%,transparent)}
-  .hero.is-pinned .hero-video{opacity:.18}
 }
 .site-footer{display:grid;justify-items:center;gap:18px;padding:48px 20px 34px;border-top:1px solid var(--line);color:var(--muted);text-align:center}
 .site-footer strong{font-size:11px;letter-spacing:.2em;color:inherit}
@@ -526,6 +523,7 @@
   --danger: #ff6b7d;
   --fg: #edf4ff;
   --blue: #5a7ea0;
+  isolation: isolate;
   min-height: 100vh;
   overflow-x: clip;
   background: radial-gradient(circle at top, rgba(90,126,160,.04), transparent 32%), var(--bg);
@@ -922,30 +920,14 @@ button, a, input { -webkit-tap-highlight-color: transparent; }
   background: color-mix(in srgb, var(--bg) 55%, transparent);
 }
 
-.hero-shell .hero-video {
-  transition: opacity .45s ease;
-}
-
-.hero-shell .hero.is-pinned .hero-video {
-  opacity: .22;
-}
-
 @media (max-width: 700px) {
   .hero-shell {
     height: 72svh;
     min-height: 360px;
   }
-
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .hero-video {
-    transition: none;
-    animation: none;
-  }
-}
-
-/* Keep the video fixed behind the store without trapping its blend layer. */
+/* Keep the store hero above the page background video. */
 .hero-shell {
   position: relative;
   z-index: 1;
@@ -953,36 +935,11 @@ button, a, input { -webkit-tap-highlight-color: transparent; }
   min-height: 360px;
   pointer-events: none;
 }
-.hero-video.hero-video {
-  position: fixed;
-  z-index: 1;
-  top: max(60px, var(--nav-h, 66px));
-  left: 0;
-  width: min(100vw, 1400px);
-  max-width: none;
-  height: calc(100svh - var(--nav-h, 66px));
-  border-radius: 0;
-  object-fit: contain;
-  opacity: 1;
-  mix-blend-mode: screen;
-  pointer-events: none;
-}
-.hero-filter-defs {
-  position: absolute;
-  width: 0;
-  height: 0;
-  overflow: hidden;
-}
 .video-player {
   display: block;
   width: 100%;
   max-width: 900px;
   border-radius: 12px;
-}
-.app.light .hero-video {
-  filter: url(#sli-edit-light-colors) drop-shadow(0 0 1px rgba(0, 0, 0, .9)) drop-shadow(0 0 2px rgba(0, 0, 0, .35));
-  opacity: 1;
-  mix-blend-mode: normal;
 }
 .section#store-grid {
   z-index: 2;
@@ -997,7 +954,6 @@ button, a, input { -webkit-tap-highlight-color: transparent; }
 }
 @media (max-width: 700px) {
   .hero-shell { height: 72svh; min-height: 360px; }
-  .hero-video.hero-video { width: 100vw; }
 }
 
 .nav .brand {
@@ -1103,9 +1059,19 @@ body,
   inset: 0;
   z-index: -1;
   width: 100vw;
-  height: 100vh;
+  height: 100dvh;
   object-fit: cover;
+  object-position: center;
+  opacity: .3;
   pointer-events: none;
+}
+
+.app.light .hero-shell {
+  background: transparent !important;
+}
+
+.app.light .site-background-video {
+  opacity: .24;
 }
 
 .app.dark .hero-shell,
@@ -1176,37 +1142,7 @@ body,
   color: var(--button-fg) !important;
 }
 
-/* ── Big rotating SLI-BENSHII background + edit ── */
-@keyframes sliBgSpin {
-  from { transform: scale(1.8) rotate(0deg); }
-  to   { transform: scale(1.8) rotate(360deg); }
-}
-
-@keyframes sliEditSpin {
-  from { transform: scale(1.35) rotate(0deg); }
-  to   { transform: scale(1.35) rotate(360deg); }
-}
-
-.site-background-video {
-  transform-origin: center center;
-  animation: sliBgSpin 60s linear infinite;
-  will-change: transform;
-}
-
-.hero-video.hero-video {
-  transform-origin: center center;
-  animation: sliEditSpin 32s linear infinite;
-  will-change: transform;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .site-background-video,
-  .hero-video.hero-video {
-    animation: none;
-  }
-}
-
-/* Footer was hidden behind the fixed full-screen hero video in light mode. */
+/* Keep the footer above the fixed page background video. */
 .site-footer {
   position: relative;
   z-index: 3;
