@@ -18,7 +18,7 @@ const runtimeDir = process.env.VERCEL ? '/tmp/sli-benshi' : __dirname;
 const uploadDir = path.join(runtimeDir, 'uploads');
 const FRONTEND_URL = (process.env.FRONTEND_URL || (process.env.VERCEL ? '/' : 'http://localhost:5173')).replace(/\/$/, '') || '/';
 const JWT_SECRET = process.env.JWT_SECRET;
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || '').trim().toLowerCase();
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const adminConfigured = Boolean(JWT_SECRET && ADMIN_EMAIL && ADMIN_PASSWORD);
 const ADMIN_PASSWORD_HASH = adminConfigured ? bcrypt.hashSync(ADMIN_PASSWORD, 10) : null;
@@ -153,13 +153,19 @@ const uploadProduct = multer({
       cb(null, `product-${Date.now()}-${Math.round(Math.random() * 100000)}${ext}`);
     },
   }),
-  limits: { fileSize: 20 * 1024 * 1024 },
+  limits: { fileSize: 950 * 1024, files: 4 },
 });
 
 
 
 function generateToken(user) {
   return jwt.sign({ sub: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '12h' });
+}
+
+function discardUploadedFiles(files = []) {
+  for (const file of files) {
+    try { fs.unlinkSync(file.path); } catch (error) {}
+  }
 }
 
 function requireAdmin(req, res, next) {
@@ -255,12 +261,13 @@ app.post('/api/auth/login', (req, res) => {
     return res.status(503).json({ message: 'Admin login is disabled. Add ADMIN_EMAIL, ADMIN_PASSWORD, and JWT_SECRET in Vercel Project Settings > Environment Variables, then redeploy.' });
   }
   const { email = '', password = '' } = req.body || {};
+  const normalizedEmail = String(email).trim().toLowerCase();
 
-  if (!email || !password) {
+  if (!normalizedEmail || !password) {
     return res.status(400).json({ message: 'Email and password are required.' });
   }
 
-  if (email !== ADMIN_EMAIL || !bcrypt.compareSync(password, ADMIN_PASSWORD_HASH)) {
+  if (normalizedEmail !== ADMIN_EMAIL || !bcrypt.compareSync(password, ADMIN_PASSWORD_HASH)) {
     return res.status(401).json({ message: 'Invalid admin credentials.' });
   }
 
@@ -276,16 +283,23 @@ app.get('/api/products', (req, res) => {
   res.json(products);
 });
 
-app.post('/api/products', requireAdmin, uploadProduct.single('photo'), (req, res) => {
+app.post('/api/products', requireAdmin, uploadProduct.array('photos', 4), (req, res) => {
   const { name, description, price, stock, tag } = req.body;
+  const uploadedPhotos = req.files || [];
 
   if (!name || !price) {
+    discardUploadedFiles(uploadedPhotos);
     return res.status(400).json({ message: 'Product name and price are required.' });
   }
+  if (uploadedPhotos.length !== 4) {
+    discardUploadedFiles(uploadedPhotos);
+    return res.status(400).json({ message: 'Upload all 4 product photos to publish this product.' });
+  }
 
-  const sourceName = req.file?.originalname || '';
+  const sourceName = uploadedPhotos[0]?.originalname || '';
   const duplicate = products.find((item) => item.name === name && item.description === (description || '') && item.price === (Number(price) || 0) && item.stock === (Number(stock) || 0) && item.tag === (tag || 'DROP') && item.sourceName === sourceName);
   if (duplicate) {
+    discardUploadedFiles(uploadedPhotos);
     return res.status(200).json(duplicate);
   }
 
@@ -296,7 +310,8 @@ app.post('/api/products', requireAdmin, uploadProduct.single('photo'), (req, res
     price: Number(price) || 0,
     stock: Number(stock) || 0,
     tag: tag || 'DROP',
-    photoUrl: req.file ? `/uploads/products/${req.file.filename}` : '',
+    photoUrl: `/uploads/products/${uploadedPhotos[0].filename}`,
+    photos: uploadedPhotos.map((file) => `/uploads/products/${file.filename}`),
     sourceName,
   };
 
@@ -305,16 +320,23 @@ app.post('/api/products', requireAdmin, uploadProduct.single('photo'), (req, res
   return res.status(201).json(product);
 });
 
-app.put('/api/products/:id', requireAdmin, uploadProduct.single('photo'), (req, res) => {
+app.put('/api/products/:id', requireAdmin, uploadProduct.array('photos', 4), (req, res) => {
   const product = products.find((p) => p.id === req.params.id);
   if (!product) return res.status(404).json({ message: 'Product not found.' });
 
   const { name, description, price, stock, tag } = req.body;
+  const uploadedPhotos = req.files || [];
 
-  if (req.file) {
-    if (product.photoUrl) safeUnlink(product.photoUrl);
-    product.photoUrl = `/uploads/products/${req.file.filename}`;
-    product.sourceName = req.file.originalname || '';
+  if (uploadedPhotos.length && uploadedPhotos.length !== 4) {
+    discardUploadedFiles(uploadedPhotos);
+    return res.status(400).json({ message: 'When replacing product photos, upload all 4 photos together.' });
+  }
+  if (uploadedPhotos.length === 4) {
+    const oldPhotos = new Set([product.photoUrl, ...(Array.isArray(product.photos) ? product.photos : [])].filter(Boolean));
+    oldPhotos.forEach(safeUnlink);
+    product.photos = uploadedPhotos.map((file) => `/uploads/products/${file.filename}`);
+    product.photoUrl = product.photos[0];
+    product.sourceName = uploadedPhotos[0].originalname || '';
   }
   if (name) product.name = name;
   if (description !== undefined) product.description = description || '';
@@ -331,7 +353,7 @@ app.delete('/api/products/:id', requireAdmin, (req, res) => {
   if (idx === -1) return res.status(404).json({ message: 'Product not found.' });
 
   const [removed] = products.splice(idx, 1);
-  if (removed.photoUrl) safeUnlink(removed.photoUrl);
+  new Set([removed.photoUrl, ...(Array.isArray(removed.photos) ? removed.photos : [])].filter(Boolean)).forEach(safeUnlink);
   writeData();
   return res.json({ success: true });
 });

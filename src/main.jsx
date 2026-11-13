@@ -6,6 +6,19 @@ import './background-tuning.css';
 const API = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
 const API_ORIGIN = /^https?:\/\//i.test(API) ? API.replace(/\/api$/, '') : '';
 const fmt = (n) => `RWF ${Number(n || 0).toLocaleString()}`;
+const WHATSAPP_PHONE = '250791744472';
+
+function openWhatsAppOrder(items) {
+  const lines = items.map(item => `- ${item.name} x ${item.qty} (${fmt(item.price)} each)`);
+  const total = items.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.qty || 1), 0);
+  const message = [
+    'Hi SLI-BENSHII, I would like to place this order:',
+    ...lines,
+    `Total: ${fmt(total)}`,
+    'Please let me know the next steps for delivery.',
+  ].join('\n');
+  window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+}
 
 /* â”€â”€â”€ INTRO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function Intro({ onDone }) {
@@ -63,12 +76,13 @@ function Intro({ onDone }) {
 }
 
 /* â”€â”€â”€ PRODUCT CARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-function ProductCard({ product, onAdd }) {
+function ProductCard({ product, onAdd, onBuy }) {
+  const cover = product.photos?.[0] || product.photoUrl;
   return (
     <article className="product-card">
       <div className="product-image" data-tag={product.tag || 'DROP'}>
-        {product.photoUrl
-          ? <img src={`${API_ORIGIN}${product.photoUrl}`} alt={product.name} />
+        {cover
+          ? <img src={`${API_ORIGIN}${cover}`} alt={product.name} />
           : null}
       </div>
       <div className="product-info">
@@ -77,10 +91,64 @@ function ProductCard({ product, onAdd }) {
         <strong>{fmt(product.price)}</strong>
         <div className="product-actions">
           <button onClick={() => onAdd(product)}>ADD TO CART</button>
-          <button className="solid" onClick={() => onAdd(product)}>BUY NOW</button>
+          <button className="solid" onClick={() => onBuy(product)}>BUY NOW</button>
         </div>
       </div>
     </article>
+  );
+}
+
+function ProductDetails({ product, onClose, onAdd, onOrder }) {
+  const photos = (Array.isArray(product.photos) && product.photos.length
+    ? product.photos
+    : [product.photoUrl].filter(Boolean)).slice(0, 4);
+  const [activePhoto, setActivePhoto] = useState(0);
+  const [quantity, setQuantity] = useState(1);
+
+  useEffect(() => {
+    setActivePhoto(0);
+    setQuantity(1);
+  }, [product.id]);
+
+  return (
+    <div className="modal-layer product-details-layer" onClick={onClose}>
+      <section className="product-details" role="dialog" aria-modal="true" aria-label={`${product.name} details`} onClick={event => event.stopPropagation()}>
+        <button type="button" className="product-details-close" aria-label="Close product details" onClick={onClose}>X</button>
+        <div className="product-details-gallery">
+          <div className="product-details-main-image">
+            {photos.length
+              ? <img src={`${API_ORIGIN}${photos[activePhoto]}`} alt={`${product.name} view ${activePhoto + 1}`} />
+              : <span>NO PRODUCT PHOTOS</span>}
+          </div>
+          {photos.length > 1 && (
+            <div className="product-details-thumbnails" aria-label="Product photos">
+              {photos.map((photo, index) => (
+                <button type="button" key={photo} className={index === activePhoto ? 'active' : ''} onClick={() => setActivePhoto(index)} aria-label={`Show product photo ${index + 1}`}>
+                  <img src={`${API_ORIGIN}${photo}`} alt="" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="product-details-info">
+          <span className="eyebrow">{product.tag || 'SLI-BENSHII DROP'}</span>
+          <h2>{product.name}</h2>
+          {product.description && <p>{product.description}</p>}
+          <strong className="product-details-price">{fmt(product.price)}</strong>
+          {typeof product.stock === 'number' && <span className="product-details-stock">{product.stock > 0 ? `${product.stock} IN STOCK` : 'SOLD OUT'}</span>}
+          <div className="product-details-quantity">
+            <span>QUANTITY</span>
+            <div>
+              <button type="button" onClick={() => setQuantity(value => Math.max(1, value - 1))} aria-label="Decrease quantity">-</button>
+              <b>{quantity}</b>
+              <button type="button" onClick={() => setQuantity(value => Math.min(Math.max(product.stock || 99, 1), value + 1))} aria-label="Increase quantity">+</button>
+            </div>
+          </div>
+          <button type="button" className="product-details-order" disabled={product.stock === 0} onClick={() => onOrder(product, quantity)}>ORDER ON WHATSAPP</button>
+          <button type="button" className="product-details-add" onClick={() => { onAdd(product, quantity); onClose(); }}>ADD TO CART</button>
+        </div>
+      </section>
+    </div>
   );
 }
 
@@ -103,56 +171,10 @@ function Cart({ items, total, onClose, onCheckout }) {
           : <p className="empty">Your cart is empty.</p>}
         <div className="drawer-foot">
           <div><span>SUBTOTAL</span><b>{fmt(total)}</b></div>
-          <button className="solid" onClick={onCheckout} disabled={!items.length}>CHECKOUT</button>
+          <button className="solid" onClick={onCheckout} disabled={!items.length}>ORDER ON WHATSAPP</button>
         </div>
       </aside>
     </>
-  );
-}
-
-function Checkout({ items, total, onClose, onNotice }) {
-  const [email, setEmail] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [step, setStep] = useState('contact'); // contact | payment | confirm
-
-  async function pay(e) {
-    e.preventDefault();
-    setBusy(true);
-    try {
-      const res = await fetch(`${API}/checkout/session`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, items: items.map(({ id, qty }) => ({ id, qty })) }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Payment could not be started.');
-      window.location.assign(`${API_ORIGIN}${data.url}`);
-    } catch (err) {
-      onNotice(err.message);
-      setBusy(false);
-    }
-  }
-
-  return (
-    <div className="checkout">
-      <div className="checkout-top">
-        <button onClick={onClose}>X</button>
-        <span>SLI-BENSHII CHECKOUT</span>
-      </div>
-      <form className="checkout-body" onSubmit={pay}>
-        <div className="checkout-brand">SLI-BENSHII</div>
-        <div className="order-total">
-          <span>Order total</span>
-          <b>{fmt(total)}</b>
-        </div>
-        <h3>Contact</h3>
-        <input type="email" placeholder="Email for receipt" value={email} onChange={e => setEmail(e.target.value)} required />
-        <div className="payment-option">
-          <p style={{ margin: 0, fontSize: 11, color: '#888' }}>Place your order - we'll confirm your details and shipping by email.</p>
-        </div>
-        <button className="pay" disabled={busy}>{busy ? 'PLACING ORDER...' : 'PLACE ORDER'}</button>
-      </form>
-    </div>
   );
 }
 
@@ -175,7 +197,7 @@ function LeagueOpeningVideo() {
 }
 
 /* â”€â”€â”€ LEAGUE PAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-function LeaguePage({ onAdd, offline }) {
+function LeaguePage({ onAdd, onBuy, offline }) {
   const [items, setItems] = useState([]);
 
   useEffect(() => {
@@ -239,8 +261,8 @@ function LeaguePage({ onAdd, offline }) {
               {item.product?.name && (
                 <div className="league-product">
                   <div className="league-product-img">
-                    {item.product.photoUrl
-                      ? <img src={`${API_ORIGIN}${item.product.photoUrl}`} alt={item.product.name} />
+                    {item.product.photos?.[0] || item.product.photoUrl
+                      ? <img src={`${API_ORIGIN}${item.product.photos?.[0] || item.product.photoUrl}`} alt={item.product.name} />
                       : null}
                   </div>
                   <div className="league-product-info">
@@ -250,7 +272,7 @@ function LeaguePage({ onAdd, offline }) {
                     <strong>{fmt(item.product.price)}</strong>
                     <div className="product-actions" style={{ marginTop: 12 }}>
                       <button onClick={() => onAdd(item.product)}>ADD TO CART</button>
-                      <button className="solid" onClick={() => onAdd(item.product)}>BUY NOW</button>
+                      <button className="solid" onClick={() => onBuy(item.product)}>BUY NOW</button>
                     </div>
                   </div>
                 </div>
@@ -406,10 +428,9 @@ export default function App() {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
-  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [intro, setIntro] = useState(true);
   const [tab, setTab] = useState('store');
-  const [notice, setNotice] = useState('');
   const [dark, setDark] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -470,9 +491,19 @@ export default function App() {
   const total = cart.reduce((s, i) => s + Number(i.price) * i.qty, 0);
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
 
-  function addToCart(p) {
-    setCart(c => c.find(x => x.id === p.id) ? c.map(x => x.id === p.id ? { ...x, qty: x.qty + 1 } : x) : [...c, { ...p, qty: 1 }]);
+  function addToCart(p, quantity = 1) {
+    setCart(c => c.find(x => x.id === p.id) ? c.map(x => x.id === p.id ? { ...x, qty: x.qty + quantity } : x) : [...c, { ...p, qty: quantity }]);
     setCartOpen(true);
+  }
+
+  function orderProduct(product, quantity = 1) {
+    openWhatsAppOrder([{ ...product, qty: quantity }]);
+    setSelectedProduct(null);
+  }
+
+  function orderCart() {
+    openWhatsAppOrder(cart);
+    setCartOpen(false);
   }
 
   function navigate(t) {
@@ -555,7 +586,7 @@ export default function App() {
                   <span>{products.length} items</span>
                 </div>
                 {products.length
-                  ? <div className="product-grid">{products.map(p => <ProductCard key={p.id} product={p} onAdd={addToCart} />)}</div>
+                  ? <div className="product-grid">{products.map(p => <ProductCard key={p.id} product={p} onAdd={addToCart} onBuy={setSelectedProduct} />)}</div>
                   : (
                     <div className="empty-state">
                       <strong>NO ITEMS PUBLISHED YET</strong>
@@ -569,7 +600,7 @@ export default function App() {
       )}
 
       {/* LEAGUE */}
-      {tab === 'league' && !settings.siteOffline && <LeaguePage onAdd={addToCart} offline={settings.leagueOffline} />}
+      {tab === 'league' && !settings.siteOffline && <LeaguePage onAdd={addToCart} onBuy={setSelectedProduct} offline={settings.leagueOffline} />}
 
       {/* COMMUNITY */}
       {tab === 'community' && !settings.siteOffline && <CommunityPage />}
@@ -599,13 +630,10 @@ export default function App() {
       {!settings.siteOffline && <SiteFooter tab={tab} onNavigate={navigate} />}
 
       {/* CART */}
-      {cartOpen && !settings.siteOffline && <Cart items={cart} total={total} onClose={() => setCartOpen(false)} onCheckout={() => { setCartOpen(false); setCheckoutOpen(true); }} />}
+      {cartOpen && !settings.siteOffline && <Cart items={cart} total={total} onClose={() => setCartOpen(false)} onCheckout={orderCart} />}
 
-      {/* CHECKOUT */}
-      {checkoutOpen && !settings.siteOffline && <Checkout items={cart} total={total} onClose={() => setCheckoutOpen(false)} onNotice={setNotice} />}
-
-      {/* TOAST */}
-      {notice && <div className="toast" onClick={() => setNotice('')}>{notice}</div>}
+      {/* PRODUCT DETAILS */}
+      {selectedProduct && !settings.siteOffline && <ProductDetails product={selectedProduct} onClose={() => setSelectedProduct(null)} onAdd={addToCart} onOrder={orderProduct} />}
     </div>
   );
 }
