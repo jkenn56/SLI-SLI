@@ -316,13 +316,60 @@ function CommunityPage() {
 
 /* â”€â”€â”€ APP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /* â”€â”€â”€ SOCIALS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function ShowroomPage({ products, onViewProduct }) {
+  return (
+    <main className="showroom-page">
+      <section className="showroom-intro">
+        <span className="eyebrow red">SLI-BENSHII // COLLECTION ARCHIVE</span>
+        <h1>THE SHOWROOM</h1>
+        <p>Explore each piece from every angle. Open a look to see its full details and photos before ordering.</p>
+        <span className="showroom-count">{products.length} {products.length === 1 ? 'LOOK' : 'LOOKS'} AVAILABLE</span>
+      </section>
+      {products.length ? (
+        <section className="showroom-grid" aria-label="Showroom collection">
+          {products.map((product, index) => {
+            const photos = (Array.isArray(product.photos) && product.photos.length
+              ? product.photos
+              : [product.photoUrl].filter(Boolean)).slice(0, 4);
+            return (
+              <article className="showroom-card" key={product.id}>
+                <button className="showroom-photo-grid" type="button" onClick={() => onViewProduct(product)} aria-label={`View ${product.name} details and photos`}>
+                  {photos.length ? photos.map((photo, photoIndex) => (
+                    <img key={`${photo}-${photoIndex}`} src={`${API_ORIGIN}${photo}`} alt={`${product.name}, view ${photoIndex + 1}`} loading="lazy" />
+                  )) : <span className="showroom-no-photo">PHOTO COMING SOON</span>}
+                </button>
+                <div className="showroom-card-info">
+                  <span className="eyebrow">LOOK {String(index + 1).padStart(2, '0')} // {product.tag || 'SLI DROP'}</span>
+                  <h2>{product.name}</h2>
+                  {product.description && <p>{product.description}</p>}
+                  <div className="showroom-card-foot">
+                    <strong>{fmt(product.price)}</strong>
+                    <button type="button" onClick={() => onViewProduct(product)}>VIEW DETAILS <span aria-hidden="true">↗</span></button>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </section>
+      ) : (
+        <div className="empty-state showroom-empty">
+          <strong>THE SHOWROOM IS WAITING</strong>
+          <span>Published store pieces will appear here with their photos and details.</span>
+        </div>
+      )}
+    </main>
+  );
+}
+
 const MENU_PAGES = [
   { id: 'store', label: 'SLI-STORE' },
+  { id: 'showroom', label: 'SHOWROOM' },
   { id: 'league', label: 'LAST LEAGUE FINAL' },
 ];
 
 const FOOTER_PAGES = [
   { id: 'store', label: 'SLI-STORE' },
+  { id: 'showroom', label: 'SHOWROOM' },
   { id: 'league', label: 'LAST LEAGUE FINAL' },
   { id: 'community', label: 'COMMUNITY' },
 ];
@@ -601,6 +648,9 @@ export default function App() {
 
       {/* LEAGUE */}
       {tab === 'league' && !settings.siteOffline && <LeaguePage onAdd={addToCart} onBuy={setSelectedProduct} offline={settings.leagueOffline} />}
+
+      {/* SHOWROOM */}
+      {tab === 'showroom' && !settings.siteOffline && <ShowroomPage products={products} onViewProduct={setSelectedProduct} />}
 
       {/* COMMUNITY */}
       {tab === 'community' && !settings.siteOffline && <CommunityPage />}
