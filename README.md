@@ -21,7 +21,7 @@ Open `http://localhost:5173`. Express serves the API on port 5000; the admin pag
 
 ## Deploy on Vercel
 
-Import the GitHub repository as one project. Set **Root Directory** to `./` (the repository root) and use the Express framework preset. Do not create a Services project. `vercel.json` runs `npm run build` and publishes the generated `public/` assets; `server.js` serves the API and admin page on the same domain. The routes are `/`, `/product/:id`, `/showroom/:id`, `/api/*`, `/uploads/*`, and `/admin`.
+Import the GitHub repository as one project. Set **Root Directory** to `./` (the repository root) and use the Express framework preset. Do not create a Services project. `vercel.json` runs `npm run build`; Vercel serves the generated static files from `public/` and routes application requests to the Express app in `server.js`. The routes are `/`, `/product/:id`, `/showroom/:id`, `/api/*`, `/uploads/*`, and `/admin`.
 
 Add these environment variables in Vercel for both Production and Preview:
 
