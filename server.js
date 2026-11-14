@@ -280,7 +280,9 @@ app.post('/api/auth/login', (req, res) => {
 });
 
 app.get('/api/products', (req, res) => {
-  res.json(products);
+  // Public product listings show only the product name and price, even while
+  // an older cached frontend bundle is still in use by a visitor.
+  res.json(products.map(({ description, ...product }) => product));
 });
 
 app.post('/api/products', requireAdmin, uploadProduct.array('photos', 4), (req, res) => {
