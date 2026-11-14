@@ -17,7 +17,7 @@ function routeFromLocation() {
 
 function openWhatsAppOrder(items) {
   const href = whatsappOrderHref(items);
-  window.location.assign(href);
+  window.open(href, '_blank', 'noopener,noreferrer');
 }
 
 function whatsappOrderHref(items) {
