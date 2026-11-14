@@ -125,8 +125,9 @@ function ProductDetails({ product, onAdd, onShowroom, onBack }) {
   return (
     <main className="product-page">
       <button type="button" className="product-page-back" onClick={onBack}>← BACK TO STORE</button>
+      <div className="product-glass-shell product-details-shell">
       <section className="product-details" aria-label={`${product.name} details`}>
-        <div className="product-details-gallery">
+        <div className="product-details-gallery product-glass-card">
           <div className="product-details-main-image">
             {photos.length
               ? <img src={`${API_ORIGIN}${photos[activePhoto]}`} alt={`${product.name} view ${activePhoto + 1}`} />
@@ -142,7 +143,7 @@ function ProductDetails({ product, onAdd, onShowroom, onBack }) {
             </div>
           )}
         </div>
-        <div className="product-details-info">
+        <div className="product-details-info product-glass-card">
           <span className="eyebrow">{product.tag || 'SLI-BENSHII DROP'}</span>
           <h2>{product.name}</h2>
           {product.description && <p>{product.description}</p>}
@@ -160,6 +161,7 @@ function ProductDetails({ product, onAdd, onShowroom, onBack }) {
           <button type="button" className="product-details-add" onClick={() => onAdd(product, quantity)}>ADD TO CART</button>
         </div>
       </section>
+      </div>
     </main>
   );
 }
@@ -179,14 +181,21 @@ function ProductShowroomPage({ product, onBack, onOrder }) {
     setZoom(1);
   }, [product.id]);
 
+  useEffect(() => {
+    if (photos.length < 2) return undefined;
+    const timer = window.setInterval(() => setActivePhoto(current => (current + 1) % photos.length), 10000);
+    return () => window.clearInterval(timer);
+  }, [product.id, photos.length]);
+
   const imageUrl = photos[activePhoto] ? `${API_ORIGIN}${photos[activePhoto]}` : '';
   return (
     <main className="showroom-product-page">
       <button type="button" className="product-page-back" onClick={onBack}>← BACK TO DETAILS</button>
+      <div className="product-glass-shell showroom-product-shell">
       <div className="showroom-product-layout">
-        <section className="showroom-product-gallery" aria-label={`${product.name} photo gallery`}>
+        <section className="showroom-product-gallery product-glass-card" aria-label={`${product.name} photo gallery`}>
           <button type="button" className="showroom-product-image" onClick={() => imageUrl && setZoomOpen(true)} aria-label="Zoom product photo">
-            {imageUrl ? <img src={imageUrl} alt={`${product.name}, photo ${activePhoto + 1}`} /> : <span>NO PRODUCT PHOTOS</span>}
+            {photos.length ? photos.map((photo, index) => <img key={`${photo}-${index}`} className={index === activePhoto ? 'active' : ''} src={`${API_ORIGIN}${photo}`} alt={`${product.name}, photo ${index + 1}`} aria-hidden={index !== activePhoto} />) : <span>NO PRODUCT PHOTOS</span>}
             {imageUrl && <span className="zoom-hint">CLICK TO ZOOM</span>}
           </button>
           {photos.length > 1 && <div className="showroom-product-thumbnails" aria-label="Choose product photo">
@@ -196,7 +205,7 @@ function ProductShowroomPage({ product, onBack, onOrder }) {
           </div>}
           <span className="showroom-photo-count">{photos.length ? `${activePhoto + 1} / ${photos.length} PHOTOS` : 'PHOTOS COMING SOON'}</span>
         </section>
-        <section className="showroom-product-info">
+        <section className="showroom-product-info product-glass-card">
           <span className="eyebrow red">SLI-BENSHII // SHOWROOM</span>
           <h1>{product.name}</h1>
           <strong className="product-details-price">{fmt(product.price)}</strong>
@@ -212,6 +221,7 @@ function ProductShowroomPage({ product, onBack, onOrder }) {
           </div>
           <a className="product-details-order showroom-order-link" href={whatsappOrderHref([{ ...product, qty: quantity }])} target="_blank" rel="noopener noreferrer">ORDER ON WHATSAPP</a>
         </section>
+      </div>
       </div>
       {zoomOpen && <div className="product-zoom-layer" role="dialog" aria-modal="true" aria-label={`${product.name} enlarged photo`} onClick={() => { setZoomOpen(false); setZoom(1); }}>
         <button type="button" className="product-zoom-close" aria-label="Close zoom" onClick={() => { setZoomOpen(false); setZoom(1); }}>×</button>

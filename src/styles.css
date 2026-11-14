@@ -1358,3 +1358,69 @@ body,
   .product-zoom-layer{padding:66px 10px 14px}
   .product-zoom-layer>img{max-width:98vw;max-height:82vh}
 }
+
+/* Shared glass layout for Buy Now details and the full product showroom. */
+.product-glass-shell {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 2vw, 22px);
+  width: 100%;
+  padding: clamp(12px, 2.4vw, 28px);
+  border: 1px solid color-mix(in srgb, var(--line) 78%, transparent);
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--panel) 38%, transparent);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 18px 60px #00000012;
+}
+.product-glass-card {
+  min-width: 0;
+  padding: clamp(16px, 2.6vw, 32px);
+  border: 1px solid color-mix(in srgb, var(--line) 82%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--panel) 68%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+.product-details-shell .product-details,
+.showroom-product-layout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: none;
+  gap: clamp(14px, 2vw, 22px);
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+}
+.product-details-shell .product-details-gallery,
+.product-details-shell .product-details-info,
+.showroom-product-gallery,
+.showroom-product-info {
+  width: 100%;
+  padding: clamp(16px, 2.6vw, 32px);
+  border: 1px solid color-mix(in srgb, var(--line) 82%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--panel) 68%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+.product-details-shell .product-details-main-image,
+.showroom-product-image { background: color-mix(in srgb, var(--bg) 74%, transparent); }
+.showroom-product-info { position: static; gap: 16px; }
+.showroom-product-image img { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s ease; }
+.showroom-product-image img.active { opacity: 1; }
+.showroom-product-thumbnails button.active { outline: 1px solid var(--accent); outline-offset: 2px; }
+.product-details-shell .product-details-info { gap: 14px; padding-top: clamp(18px, 3vw, 34px); }
+.product-page .product-details-thumbnails button { overflow: hidden; }
+@media (prefers-reduced-motion: reduce) {
+  .showroom-product-image img { transition-duration: .01ms; }
+}
+@media (max-width: 700px) {
+  .product-glass-shell { gap: 12px; padding: 10px; }
+  .product-details-shell .product-details-gallery,
+  .product-details-shell .product-details-info,
+  .showroom-product-gallery,
+  .showroom-product-info { padding: 14px; }
+}
