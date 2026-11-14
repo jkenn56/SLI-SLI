@@ -286,11 +286,7 @@ function renderLeagueTab(body) {
         <p class="kicker" style="margin-top:8px;border-top:1px solid var(--line);padding-top:16px">SPECIAL PRODUCT ${editing && editing.product?.name ? `— ${esc(editing.product.name)}` : ''}</p>
         <div class="field"><label>PRODUCT PHOTO ${editing ? '(LEAVE EMPTY TO KEEP CURRENT)' : ''}</label><input name="productPhoto" type="file" accept="image/*"/></div>
         <div class="field"><label>PRODUCT NAME</label><input name="name" value="${esc(editing?.product?.name || '')}" placeholder="LAST LEAGUE SPECIAL TEE"/></div>
-        <div class="field"><label>PRODUCT DESCRIPTION</label><textarea name="productDescription" placeholder="Limited edition drop for this episode...">${esc(editing?.product?.description || '')}</textarea></div>
-        <div class="split-2">
-          <div class="field"><label>PRICE (RWF)</label><input name="price" type="number" min="0" value="${editing ? editing.product?.price ?? 0 : 0}"/></div>
-          <div class="field"><label>TAG</label><input name="tag" value="${esc(editing?.product?.tag || '')}"/></div>
-        </div>
+        <div class="field"><label>PRICE (RWF)</label><input name="price" type="number" min="0" value="${editing ? editing.product?.price ?? 0 : 0}"/></div>
         <button class="btn-primary" type="submit">${editing ? 'SAVE CHANGES' : 'PUBLISH BROADCAST'}</button>
         <span data-msg aria-live="polite"></span>
       </form>

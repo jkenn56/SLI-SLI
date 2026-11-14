@@ -114,11 +114,9 @@ function ProductDetails({ product, onAdd, onShowroom, onBack }) {
     ? product.photos
     : [product.photoUrl].filter(Boolean)).slice(0, 4);
   const [activePhoto, setActivePhoto] = useState(0);
-  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     setActivePhoto(0);
-    setQuantity(1);
   }, [product.id]);
 
   return (
@@ -145,16 +143,8 @@ function ProductDetails({ product, onAdd, onShowroom, onBack }) {
         <div className="product-details-info product-glass-card">
           <h2>{product.name}</h2>
           <strong className="product-details-price">{fmt(product.price)}</strong>
-          <div className="product-details-quantity">
-            <span>QUANTITY</span>
-            <div>
-              <button type="button" onClick={() => setQuantity(value => Math.max(1, value - 1))} aria-label="Decrease quantity">-</button>
-              <b>{quantity}</b>
-              <button type="button" onClick={() => setQuantity(value => Math.min(Math.max(product.stock || 99, 1), value + 1))} aria-label="Increase quantity">+</button>
-            </div>
-          </div>
           <button type="button" className="product-details-order" onClick={() => onShowroom(product)}>GO TO SHOWROOM</button>
-          <button type="button" className="product-details-add" onClick={() => onAdd(product, quantity)}>ADD TO CART</button>
+          <button type="button" className="product-details-add" onClick={() => onAdd(product)}>ADD TO CART</button>
         </div>
       </section>
       </div>
@@ -162,18 +152,16 @@ function ProductDetails({ product, onAdd, onShowroom, onBack }) {
   );
 }
 
-function ProductShowroomPage({ product, onBack, onOrder }) {
+function ProductShowroomPage({ product, onBack }) {
   const photos = (Array.isArray(product.photos) && product.photos.length
     ? product.photos
     : [product.photoUrl].filter(Boolean)).slice(0, 4);
   const [activePhoto, setActivePhoto] = useState(0);
-  const [quantity, setQuantity] = useState(1);
   const [zoomOpen, setZoomOpen] = useState(false);
   const [zoom, setZoom] = useState(1);
 
   useEffect(() => {
     setActivePhoto(0);
-    setQuantity(1);
     setZoom(1);
   }, [product.id]);
 
@@ -192,28 +180,17 @@ function ProductShowroomPage({ product, onBack, onOrder }) {
         <section className="showroom-product-gallery product-glass-card" aria-label={`${product.name} photo gallery`}>
           <button type="button" className="showroom-product-image" onClick={() => imageUrl && setZoomOpen(true)} aria-label="Zoom product photo">
             {photos.length ? photos.map((photo, index) => <img key={`${photo}-${index}`} className={index === activePhoto ? 'active' : ''} src={`${API_ORIGIN}${photo}`} alt={`${product.name}, photo ${index + 1}`} aria-hidden={index !== activePhoto} />) : <span>NO PRODUCT PHOTOS</span>}
-            {imageUrl && <span className="zoom-hint">CLICK TO ZOOM</span>}
           </button>
           {photos.length > 1 && <div className="showroom-product-thumbnails" aria-label="Choose product photo">
             {photos.map((photo, index) => <button type="button" key={`${photo}-${index}`} className={index === activePhoto ? 'active' : ''} onClick={() => setActivePhoto(index)} aria-label={`Show photo ${index + 1}`}>
               <img src={`${API_ORIGIN}${photo}`} alt={`${product.name}, thumbnail ${index + 1}`} />
             </button>)}
           </div>}
-          <span className="showroom-photo-count">{photos.length ? `${activePhoto + 1} / ${photos.length} PHOTOS` : 'PHOTOS COMING SOON'}</span>
         </section>
         <section className="showroom-product-info product-glass-card">
-          <span className="eyebrow red">SLI-BENSHII // SHOWROOM</span>
           <h1>{product.name}</h1>
           <strong className="product-details-price">{fmt(product.price)}</strong>
-          <div className="showroom-product-spec"><span>PRODUCT PHOTOS</span><b>{photos.length || 0} detailed views</b></div>
-          <div className="product-details-quantity">
-            <span>QUANTITY</span><div>
-              <button type="button" onClick={() => setQuantity(value => Math.max(1, value - 1))} aria-label="Decrease quantity">-</button>
-              <b>{quantity}</b>
-              <button type="button" onClick={() => setQuantity(value => Math.min(Math.max(product.stock || 99, 1), value + 1))} aria-label="Increase quantity">+</button>
-            </div>
-          </div>
-          <a className="product-details-order showroom-order-link" href={whatsappOrderHref([{ ...product, qty: quantity }])} target="_blank" rel="noopener noreferrer">ORDER ON WHATSAPP</a>
+          <a className="product-details-order showroom-order-link" href={whatsappOrderHref([{ ...product, qty: 1 }])} target="_blank" rel="noopener noreferrer">ORDER ON WHATSAPP</a>
         </section>
       </div>
       </div>
@@ -344,9 +321,7 @@ function LeaguePage({ onAdd, onBuy, offline }) {
                       : null}
                   </div>
                   <div className="league-product-info">
-                    <span className="eyebrow" style={{ color: 'var(--muted)' }}>SPECIAL DROP</span>
                     <h3>{item.product.name}</h3>
-                    {item.product.description && <p>{item.product.description}</p>}
                     <strong>{fmt(item.product.price)}</strong>
                     <div className="product-actions" style={{ marginTop: 12 }}>
                       <button onClick={() => onAdd(item.product)}>ADD TO CART</button>
@@ -630,10 +605,6 @@ export default function App() {
     setCartOpen(true);
   }
 
-  function orderProduct(product, quantity = 1) {
-    openWhatsAppOrder([{ ...product, qty: quantity }]);
-  }
-
   function orderCart() {
     openWhatsAppOrder(cart);
     setCartOpen(false);
@@ -767,7 +738,7 @@ export default function App() {
         if (!product) return <main className="empty-state product-route-empty"><strong>PRODUCT NOT FOUND</strong><button type="button" onClick={() => navigate(route.kind === 'product' ? 'store' : 'showroom')}>BACK TO STORE</button></main>;
         return route.kind === 'product'
           ? <ProductDetails product={product} onAdd={addToCart} onShowroom={openShowroom} onBack={() => navigate('store')} />
-          : <ProductShowroomPage product={product} onBack={() => backToProduct(product)} onOrder={orderProduct} />;
+          : <ProductShowroomPage product={product} onBack={() => backToProduct(product)} />;
       })()}
 
       {/* OFFLINE - WHOLE SITE */}
