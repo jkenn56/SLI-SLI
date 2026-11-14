@@ -672,6 +672,7 @@ button, a, input { -webkit-tap-highlight-color: transparent; }
 }
 
 .product-image::before {
+  display: none;
   content: attr(data-tag);
   position: absolute;
   z-index: 1;

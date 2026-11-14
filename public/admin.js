@@ -194,13 +194,8 @@ function renderStoreTab(body) {
       <h3>${editing ? esc(editing.name) : 'Add to SLI-Store'}</h3>
       <form id="store-form">
         <div class="field"><label>FOUR PRODUCT PHOTOS ${editing ? '(SELECT ALL 4 TO REPLACE)' : '(SELECT ALL 4)'}</label><input name="photos" type="file" accept="image/*" multiple ${editing ? '' : 'required'}/></div>
-        <div class="field"><label>PRODUCT NAME</label><input name="name" value="${esc(editing?.name || '')}" placeholder="NO SIGNAL TEE" required/></div>
-        <div class="split-2">
-          <div class="field"><label>PRICE (RWF)</label><input name="price" type="number" min="1" value="${editing ? editing.price : ''}" required/></div>
-          <div class="field"><label>STOCK</label><input name="stock" type="number" min="0" value="${editing ? editing.stock : 0}"/></div>
-        </div>
-        <div class="field"><label>DESCRIPTION</label><textarea name="description" placeholder="Short product description...">${esc(editing?.description || '')}</textarea></div>
-        <div class="field"><label>TAG</label><input name="tag" value="${esc(editing?.tag || '')}" placeholder="TEE / HOODIE / DROP"/></div>
+        <div class="field"><label>PRODUCT NAME</label><input name="name" value="${esc(editing?.name || '')}" placeholder="Product name" required/></div>
+        <div class="field"><label>PRICE (RWF)</label><input name="price" type="number" min="1" value="${editing ? editing.price : ''}" required/></div>
         <button class="btn-primary" type="submit">${editing ? 'SAVE CHANGES' : 'PUBLISH TO STORE'}</button>
         <span data-msg aria-live="polite"></span>
       </form>
@@ -215,7 +210,7 @@ function renderStoreTab(body) {
               : `<div class="product-row-thumb">NO IMG</div>`}
             <div class="product-row-info">
               <strong>${esc(p.name)}</strong>
-              <span>RWF ${Number(p.price).toLocaleString()} · ${esc(p.tag||'DROP')} · Stock: ${p.stock}</span>
+              <span>RWF ${Number(p.price).toLocaleString()}</span>
               <div class="row-actions">
                 <button class="row-btn" data-edit="${p.id}">EDIT</button>
                 <button class="row-btn danger" data-delete="${p.id}">DELETE</button>

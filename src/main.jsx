@@ -92,14 +92,13 @@ function ProductCard({ product, onAdd, onBuy }) {
   const cover = product.photos?.[0] || product.photoUrl;
   return (
     <article className="product-card">
-      <div className="product-image" data-tag={product.tag || 'DROP'}>
+      <div className="product-image">
         {cover
           ? <img src={`${API_ORIGIN}${cover}`} alt={product.name} />
           : null}
       </div>
       <div className="product-info">
         <h3>{product.name}</h3>
-        {product.description && <p className="prod-desc">{product.description}</p>}
         <strong>{fmt(product.price)}</strong>
         <div className="product-actions">
           <button onClick={() => onAdd(product)}>ADD TO CART</button>
@@ -144,11 +143,8 @@ function ProductDetails({ product, onAdd, onShowroom, onBack }) {
           )}
         </div>
         <div className="product-details-info product-glass-card">
-          <span className="eyebrow">{product.tag || 'SLI-BENSHII DROP'}</span>
           <h2>{product.name}</h2>
-          {product.description && <p>{product.description}</p>}
           <strong className="product-details-price">{fmt(product.price)}</strong>
-          {typeof product.stock === 'number' && <span className="product-details-stock">{product.stock > 0 ? `${product.stock} IN STOCK` : 'SOLD OUT'}</span>}
           <div className="product-details-quantity">
             <span>QUANTITY</span>
             <div>
@@ -209,8 +205,6 @@ function ProductShowroomPage({ product, onBack, onOrder }) {
           <span className="eyebrow red">SLI-BENSHII // SHOWROOM</span>
           <h1>{product.name}</h1>
           <strong className="product-details-price">{fmt(product.price)}</strong>
-          {typeof product.stock === 'number' && <span className="product-details-stock">{product.stock > 0 ? `${product.stock} IN STOCK` : 'SOLD OUT'}</span>}
-          {product.description && <p>{product.description}</p>}
           <div className="showroom-product-spec"><span>PRODUCT PHOTOS</span><b>{photos.length || 0} detailed views</b></div>
           <div className="product-details-quantity">
             <span>QUANTITY</span><div>
@@ -423,9 +417,7 @@ function ShowroomPage({ products, onViewProduct }) {
                   )) : <span className="showroom-no-photo">PHOTO COMING SOON</span>}
                 </button>
                 <div className="showroom-card-info">
-                  <span className="eyebrow">LOOK {String(index + 1).padStart(2, '0')} // {product.tag || 'SLI DROP'}</span>
                   <h2>{product.name}</h2>
-                  {product.description && <p>{product.description}</p>}
                   <div className="showroom-card-foot">
                     <strong>{fmt(product.price)}</strong>
                     <button type="button" onClick={() => onViewProduct(product)}>VIEW DETAILS <span aria-hidden="true">↗</span></button>
