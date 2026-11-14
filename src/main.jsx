@@ -16,6 +16,11 @@ function routeFromLocation() {
 }
 
 function openWhatsAppOrder(items) {
+  const href = whatsappOrderHref(items);
+  window.location.assign(href);
+}
+
+function whatsappOrderHref(items) {
   const lines = items.map(item => `- ${item.name} x ${item.qty} (${fmt(item.price)} each)`);
   const total = items.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.qty || 1), 0);
   const message = [
@@ -24,7 +29,7 @@ function openWhatsAppOrder(items) {
     `Total: ${fmt(total)}`,
     'Please let me know the next steps for delivery.',
   ].join('\n');
-  window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+  return `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
 }
 
 /* â”€â”€â”€ INTRO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
@@ -205,7 +210,7 @@ function ProductShowroomPage({ product, onBack, onOrder }) {
               <button type="button" onClick={() => setQuantity(value => Math.min(Math.max(product.stock || 99, 1), value + 1))} aria-label="Increase quantity">+</button>
             </div>
           </div>
-          <button type="button" className="product-details-order" disabled={product.stock === 0} onClick={() => onOrder(product, quantity)}>ORDER ON WHATSAPP</button>
+          <a className="product-details-order showroom-order-link" href={whatsappOrderHref([{ ...product, qty: quantity }])} target="_blank" rel="noopener noreferrer">ORDER ON WHATSAPP</a>
         </section>
       </div>
       {zoomOpen && <div className="product-zoom-layer" role="dialog" aria-modal="true" aria-label={`${product.name} enlarged photo`} onClick={() => { setZoomOpen(false); setZoom(1); }}>
