@@ -560,6 +560,11 @@ app.get(['/admin', '/admin.html'], (req, res) => {
   res.sendFile(path.join(publicDir, 'admin.html'));
 });
 
+// Product and item-showroom pages are client-rendered; keep direct links and refreshes working.
+app.get(['/product/:id', '/showroom/:id'], (req, res) => {
+  res.sendFile(path.join(publicDir, 'index.html'));
+});
+
 app.use((err, req, res, next) => {
   console.error(err);
   if (err instanceof multer.MulterError) {

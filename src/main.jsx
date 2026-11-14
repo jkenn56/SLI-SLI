@@ -8,6 +8,13 @@ const API_ORIGIN = /^https?:\/\//i.test(API) ? API.replace(/\/api$/, '') : '';
 const fmt = (n) => `RWF ${Number(n || 0).toLocaleString()}`;
 const WHATSAPP_PHONE = '250791744472';
 
+function routeFromLocation() {
+  const productMatch = window.location.pathname.match(/^\/(product|showroom)\/([^/]+)\/?$/);
+  if (productMatch) return { kind: productMatch[1], productId: decodeURIComponent(productMatch[2]) };
+  const section = window.location.hash.slice(1);
+  return { kind: 'section', section: ['store', 'showroom', 'league', 'community'].includes(section) ? section : 'store' };
+}
+
 function openWhatsAppOrder(items) {
   const lines = items.map(item => `- ${item.name} x ${item.qty} (${fmt(item.price)} each)`);
   const total = items.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.qty || 1), 0);
@@ -98,7 +105,7 @@ function ProductCard({ product, onAdd, onBuy }) {
   );
 }
 
-function ProductDetails({ product, onClose, onAdd, onOrder }) {
+function ProductDetails({ product, onAdd, onShowroom, onBack }) {
   const photos = (Array.isArray(product.photos) && product.photos.length
     ? product.photos
     : [product.photoUrl].filter(Boolean)).slice(0, 4);
@@ -111,9 +118,9 @@ function ProductDetails({ product, onClose, onAdd, onOrder }) {
   }, [product.id]);
 
   return (
-    <div className="modal-layer product-details-layer" onClick={onClose}>
-      <section className="product-details" role="dialog" aria-modal="true" aria-label={`${product.name} details`} onClick={event => event.stopPropagation()}>
-        <button type="button" className="product-details-close" aria-label="Close product details" onClick={onClose}>X</button>
+    <main className="product-page">
+      <button type="button" className="product-page-back" onClick={onBack}>← BACK TO STORE</button>
+      <section className="product-details" aria-label={`${product.name} details`}>
         <div className="product-details-gallery">
           <div className="product-details-main-image">
             {photos.length
@@ -144,11 +151,73 @@ function ProductDetails({ product, onClose, onAdd, onOrder }) {
               <button type="button" onClick={() => setQuantity(value => Math.min(Math.max(product.stock || 99, 1), value + 1))} aria-label="Increase quantity">+</button>
             </div>
           </div>
-          <button type="button" className="product-details-order" disabled={product.stock === 0} onClick={() => onOrder(product, quantity)}>ORDER ON WHATSAPP</button>
-          <button type="button" className="product-details-add" onClick={() => { onAdd(product, quantity); onClose(); }}>ADD TO CART</button>
+          <button type="button" className="product-details-order" onClick={() => onShowroom(product)}>GO TO SHOWROOM</button>
+          <button type="button" className="product-details-add" onClick={() => onAdd(product, quantity)}>ADD TO CART</button>
         </div>
       </section>
-    </div>
+    </main>
+  );
+}
+
+function ProductShowroomPage({ product, onBack, onOrder }) {
+  const photos = (Array.isArray(product.photos) && product.photos.length
+    ? product.photos
+    : [product.photoUrl].filter(Boolean)).slice(0, 4);
+  const [activePhoto, setActivePhoto] = useState(0);
+  const [quantity, setQuantity] = useState(1);
+  const [zoomOpen, setZoomOpen] = useState(false);
+  const [zoom, setZoom] = useState(1);
+
+  useEffect(() => {
+    setActivePhoto(0);
+    setQuantity(1);
+    setZoom(1);
+  }, [product.id]);
+
+  const imageUrl = photos[activePhoto] ? `${API_ORIGIN}${photos[activePhoto]}` : '';
+  return (
+    <main className="showroom-product-page">
+      <button type="button" className="product-page-back" onClick={onBack}>← BACK TO DETAILS</button>
+      <div className="showroom-product-layout">
+        <section className="showroom-product-gallery" aria-label={`${product.name} photo gallery`}>
+          <button type="button" className="showroom-product-image" onClick={() => imageUrl && setZoomOpen(true)} aria-label="Zoom product photo">
+            {imageUrl ? <img src={imageUrl} alt={`${product.name}, photo ${activePhoto + 1}`} /> : <span>NO PRODUCT PHOTOS</span>}
+            {imageUrl && <span className="zoom-hint">CLICK TO ZOOM</span>}
+          </button>
+          {photos.length > 1 && <div className="showroom-product-thumbnails" aria-label="Choose product photo">
+            {photos.map((photo, index) => <button type="button" key={`${photo}-${index}`} className={index === activePhoto ? 'active' : ''} onClick={() => setActivePhoto(index)} aria-label={`Show photo ${index + 1}`}>
+              <img src={`${API_ORIGIN}${photo}`} alt={`${product.name}, thumbnail ${index + 1}`} />
+            </button>)}
+          </div>}
+          <span className="showroom-photo-count">{photos.length ? `${activePhoto + 1} / ${photos.length} PHOTOS` : 'PHOTOS COMING SOON'}</span>
+        </section>
+        <section className="showroom-product-info">
+          <span className="eyebrow red">SLI-BENSHII // SHOWROOM</span>
+          <h1>{product.name}</h1>
+          <strong className="product-details-price">{fmt(product.price)}</strong>
+          {typeof product.stock === 'number' && <span className="product-details-stock">{product.stock > 0 ? `${product.stock} IN STOCK` : 'SOLD OUT'}</span>}
+          {product.description && <p>{product.description}</p>}
+          <div className="showroom-product-spec"><span>PRODUCT PHOTOS</span><b>{photos.length || 0} detailed views</b></div>
+          <div className="product-details-quantity">
+            <span>QUANTITY</span><div>
+              <button type="button" onClick={() => setQuantity(value => Math.max(1, value - 1))} aria-label="Decrease quantity">-</button>
+              <b>{quantity}</b>
+              <button type="button" onClick={() => setQuantity(value => Math.min(Math.max(product.stock || 99, 1), value + 1))} aria-label="Increase quantity">+</button>
+            </div>
+          </div>
+          <button type="button" className="product-details-order" disabled={product.stock === 0} onClick={() => onOrder(product, quantity)}>ORDER ON WHATSAPP</button>
+        </section>
+      </div>
+      {zoomOpen && <div className="product-zoom-layer" role="dialog" aria-modal="true" aria-label={`${product.name} enlarged photo`} onClick={() => { setZoomOpen(false); setZoom(1); }}>
+        <button type="button" className="product-zoom-close" aria-label="Close zoom" onClick={() => { setZoomOpen(false); setZoom(1); }}>×</button>
+        <div className="product-zoom-controls" onClick={event => event.stopPropagation()}>
+          <button type="button" aria-label="Zoom out" onClick={() => setZoom(value => Math.max(1, value - 0.25))}>−</button>
+          <span>{Math.round(zoom * 100)}%</span>
+          <button type="button" aria-label="Zoom in" onClick={() => setZoom(value => Math.min(3, value + 0.25))}>+</button>
+        </div>
+        <img src={imageUrl} alt={`${product.name}, enlarged photo ${activePhoto + 1}`} style={{ transform: `scale(${zoom})` }} onClick={event => event.stopPropagation()} />
+      </div>}
+    </main>
   );
 }
 
@@ -475,7 +544,8 @@ export default function App() {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [route, setRoute] = useState(routeFromLocation);
+  const [productsLoaded, setProductsLoaded] = useState(false);
   const [intro, setIntro] = useState(true);
   const [tab, setTab] = useState('store');
   const [dark, setDark] = useState(true);
@@ -489,6 +559,16 @@ export default function App() {
     emailNotificationsEnabled: false,
   });
   const navRef = useRef(null);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const nextRoute = routeFromLocation();
+      setRoute(nextRoute);
+      if (nextRoute.kind === 'section') setTab(nextRoute.section);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => {
@@ -512,7 +592,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    fetch(`${API}/products`).then(r => r.ok ? r.json() : []).then(setProducts).catch(() => {});
+    fetch(`${API}/products`).then(r => r.ok ? r.json() : []).then(data => setProducts(Array.isArray(data) ? data : [])).catch(() => {}).finally(() => setProductsLoaded(true));
   }, []);
 
   useEffect(() => {
@@ -545,7 +625,6 @@ export default function App() {
 
   function orderProduct(product, quantity = 1) {
     openWhatsAppOrder([{ ...product, qty: quantity }]);
-    setSelectedProduct(null);
   }
 
   function orderCart() {
@@ -555,7 +634,27 @@ export default function App() {
 
   function navigate(t) {
     setTab(t);
+    setRoute({ kind: 'section', section: t });
+    window.history.pushState({}, '', t === 'store' ? '/' : `/#${t}`);
     setMenuOpen(false);
+    window.scrollTo({ top: 0 });
+  }
+
+  function openProduct(product) {
+    setRoute({ kind: 'product', productId: String(product.id) });
+    window.history.pushState({}, '', `/product/${encodeURIComponent(product.id)}`);
+    window.scrollTo({ top: 0 });
+  }
+
+  function openShowroom(product) {
+    setRoute({ kind: 'showroom', productId: String(product.id) });
+    window.history.pushState({}, '', `/showroom/${encodeURIComponent(product.id)}`);
+    window.scrollTo({ top: 0 });
+  }
+
+  function backToProduct(product) {
+    setRoute({ kind: 'product', productId: String(product.id) });
+    window.history.pushState({}, '', `/product/${encodeURIComponent(product.id)}`);
     window.scrollTo({ top: 0 });
   }
 
@@ -612,7 +711,7 @@ export default function App() {
       </header>
 
       {/* STORE */}
-      {tab === 'store' && !settings.siteOffline && (
+      {route.kind === 'section' && tab === 'store' && !settings.siteOffline && (
         <main>
           <div className="hero-shell" aria-hidden="true" />
           <section className="section" id="store-grid">
@@ -633,7 +732,7 @@ export default function App() {
                   <span>{products.length} items</span>
                 </div>
                 {products.length
-                  ? <div className="product-grid">{products.map(p => <ProductCard key={p.id} product={p} onAdd={addToCart} onBuy={setSelectedProduct} />)}</div>
+                  ? <div className="product-grid">{products.map(p => <ProductCard key={p.id} product={p} onAdd={addToCart} onBuy={openProduct} />)}</div>
                   : (
                     <div className="empty-state">
                       <strong>NO ITEMS PUBLISHED YET</strong>
@@ -647,13 +746,22 @@ export default function App() {
       )}
 
       {/* LEAGUE */}
-      {tab === 'league' && !settings.siteOffline && <LeaguePage onAdd={addToCart} onBuy={setSelectedProduct} offline={settings.leagueOffline} />}
+      {route.kind === 'section' && tab === 'league' && !settings.siteOffline && <LeaguePage onAdd={addToCart} onBuy={openProduct} offline={settings.leagueOffline} />}
 
       {/* SHOWROOM */}
-      {tab === 'showroom' && !settings.siteOffline && <ShowroomPage products={products} onViewProduct={setSelectedProduct} />}
+      {route.kind === 'section' && tab === 'showroom' && !settings.siteOffline && <ShowroomPage products={products} onViewProduct={openShowroom} />}
 
       {/* COMMUNITY */}
-      {tab === 'community' && !settings.siteOffline && <CommunityPage />}
+      {route.kind === 'section' && tab === 'community' && !settings.siteOffline && <CommunityPage />}
+
+      {(route.kind === 'product' || route.kind === 'showroom') && !settings.siteOffline && (() => {
+        const product = products.find(item => String(item.id) === route.productId);
+        if (!productsLoaded) return <main className="empty-state product-route-empty"><strong>LOADING ITEM</strong></main>;
+        if (!product) return <main className="empty-state product-route-empty"><strong>PRODUCT NOT FOUND</strong><button type="button" onClick={() => navigate(route.kind === 'product' ? 'store' : 'showroom')}>BACK TO STORE</button></main>;
+        return route.kind === 'product'
+          ? <ProductDetails product={product} onAdd={addToCart} onShowroom={openShowroom} onBack={() => navigate('store')} />
+          : <ProductShowroomPage product={product} onBack={() => backToProduct(product)} onOrder={orderProduct} />;
+      })()}
 
       {/* OFFLINE - WHOLE SITE */}
       {settings.siteOffline && (
@@ -682,8 +790,6 @@ export default function App() {
       {/* CART */}
       {cartOpen && !settings.siteOffline && <Cart items={cart} total={total} onClose={() => setCartOpen(false)} onCheckout={orderCart} />}
 
-      {/* PRODUCT DETAILS */}
-      {selectedProduct && !settings.siteOffline && <ProductDetails product={selectedProduct} onClose={() => setSelectedProduct(null)} onAdd={addToCart} onOrder={orderProduct} />}
     </div>
   );
 }

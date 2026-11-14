@@ -2,7 +2,7 @@
 
 This repository is configured as one Vercel project from its root. The React storefront builds into root `public/`, and root `server.js` serves the storefront, API, and admin page on the same domain.
 
-The store's **Buy Now** action opens a responsive product detail gallery. Admins can publish products with four photos. Store and cart orders open a WhatsApp message to `+250 791 744 472` for the customer to send.
+The store's **Buy Now** action opens a product detail page. **Go to Showroom** opens a dedicated page for that item with its uploaded photos, zoom controls, and the WhatsApp order button. Admins can publish products with four photos. Store and cart orders open a WhatsApp message to `+250 791 744 472` for the customer to send.
 
 ## Run locally
 
@@ -21,7 +21,7 @@ Open `http://localhost:5173`. Express serves the API on port 5000; the admin pag
 
 ## Deploy on Vercel
 
-Import the GitHub repository as one project. Set **Root Directory** to `./` (the repository root) and use the Express framework preset. Do not create a Services project. Vercel runs `npm run build` to build the storefront into `public/`; `server.js` serves the storefront, API, and admin routes on the same project. The routes are `/`, `/api/*`, `/uploads/*`, and `/admin`.
+Import the GitHub repository as one project. Set **Root Directory** to `./` (the repository root) and use the Express framework preset. Do not create a Services project. `vercel.json` runs `npm run build` and publishes the generated `public/` assets; `server.js` serves the API and admin page on the same domain. The routes are `/`, `/product/:id`, `/showroom/:id`, `/api/*`, `/uploads/*`, and `/admin`.
 
 Add these environment variables in Vercel for both Production and Preview:
 
