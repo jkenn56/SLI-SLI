@@ -36,7 +36,9 @@ function readData() {
     const raw = fs.existsSync(dataPath)
       ? JSON.parse(fs.readFileSync(dataPath, 'utf8'))
       : seedData;
-    products = Array.isArray(raw.products) ? raw.products : [];
+    products = Array.isArray(raw.products)
+      ? raw.products.map(({ description, ...product }) => product)
+      : [];
     lastLeague = Array.isArray(raw.league) ? raw.league : [];
     orders = Array.isArray(raw.orders) ? raw.orders : [];
   } catch (error) {
